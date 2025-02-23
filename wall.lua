@@ -6,7 +6,7 @@ local StarterGui = game:GetService("StarterGui")
 local ESP = false
 
 -- Erstellt ein BillboardGui, das über dem Kopf des Spielers angezeigt wird
--- und aktualisiert fortlaufend die Health und die Distanz zum lokalen Spieler.
+-- und durch Wände sichtbar bleibt.
 local function createStatsGui(player)
     if not player.Character or not player.Character:FindFirstChild("Head") then
         return
@@ -17,6 +17,8 @@ local function createStatsGui(player)
     billboardGui.Adornee = player.Character.Head
     billboardGui.Size = UDim2.new(0, 100, 0, 50)
     billboardGui.StudsOffset = Vector3.new(0, 4, 0)
+    billboardGui.AlwaysOnTop = true -- Macht die Anzeige immer sichtbar
+    billboardGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
     billboardGui.Parent = player.Character
 
     local textLabel = Instance.new("TextLabel")
@@ -62,11 +64,19 @@ local function EspActivate(player)
         local highlight = Instance.new("Highlight")
         highlight.Parent = player.Character
         highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+        highlight.FillTransparency = 0.2 -- Noch besser sichtbar durch Wände
+        highlight.OutlineTransparency = 0
+        
         if player.Team and Players.LocalPlayer.Team then
-            highlight.FillColor = (player.Team == Players.LocalPlayer.Team) and Color3.new(0, 1, 0) or Color3.new(1, 0, 0)
+            if player.Team == Players.LocalPlayer.Team then
+                highlight.FillColor = Color3.new(0, 1, 0) -- Grün für Teamkameraden
+            else
+                highlight.FillColor = Color3.new(1, 0, 0) -- Rot für Gegner
+            end
         else
-            highlight.FillColor = Color3.new(0, 0, 1)
+            highlight.FillColor = Color3.new(1, 1, 0) -- Gelb für teamlose Spieler
         end
+        
         highlight.OutlineColor = Color3.new(1, 1, 1)
 
         createStatsGui(player)
